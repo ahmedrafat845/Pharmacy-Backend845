@@ -1,7 +1,8 @@
-import bcrypt from 'bcrypt';
+
 import jwt from "jsonwebtoken";
 import { userModel } from './../../../DataBase/models/user.model.js';
 import nodemailer from 'nodemailer';
+import { bcrypt } from 'bcrypt.js';
 
 export const forgetPassword = async (req, res) => {
     const { email } = req.body;
