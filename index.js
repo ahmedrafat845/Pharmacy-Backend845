@@ -19,7 +19,11 @@ app.use('/users',userRouter)
 app.use('/products',productRouter)
 app.use('/carts',cartRouter)
 app.use('/wishlist',wishlistRouter)
-// app.get('/payment', (req, res) => res.send('Hello World!'));
+
 app.use('/payment', paymentRouter);
+app.get('/', (req, res) => {
+    res.send('Welcome to the API');
+  });
+  
 
 app.listen(port, () => console.log(`Example app listening on port ${port}!`))
