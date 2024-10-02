@@ -9,7 +9,7 @@ cloudinary.config({
 });
 
 export const addProduct = async (req, res) => {
-    const { name, price, category, quantity, bestSeller, offer, description } = req.body;
+    const { name, price, category, quantity, bestSeller, offer, description,productAfterOffer } = req.body;
     const imageFile = req.file; // Get the uploaded file
     try {
         const isProduct = await productModel.findOne({ name });
@@ -32,6 +32,7 @@ export const addProduct = async (req, res) => {
                         quantity,
                         bestSeller,
                         offer,
+                        productAfterOffer,
                         description,
                         image: result.secure_url, // Use the secure URL from Cloudinary
                     });
