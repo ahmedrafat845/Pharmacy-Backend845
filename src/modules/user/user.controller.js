@@ -136,7 +136,6 @@ export const signIn = async (req, res) => {
         res.status(500).json({ msg: 'Server error', error: error.message });
     }
 };
-
 export const changeMyPassword = async (req, res) => {
     const { currentPassword, newPassword, confirmNewPassword } = req.body;
     const token = req.headers.token;
@@ -145,8 +144,9 @@ export const changeMyPassword = async (req, res) => {
         return res.status(401).json({ msg: 'No token provided, authorization denied' });
     }
     try {
+
         const decoded = jwt.verify(token, 'ahmedrafat123');
-        const userId = decoded.id;
+        const userId = decoded.userId;
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ msg: 'User not found' });
@@ -158,6 +158,7 @@ export const changeMyPassword = async (req, res) => {
         if (newPassword !== confirmNewPassword) {
             return res.status(400).json({ msg: 'New passwords do not match' });
         }
+
         const hashedNewPassword = await bcrypt.hash(newPassword, 8);
         user.password = hashedNewPassword;
         await user.save();
