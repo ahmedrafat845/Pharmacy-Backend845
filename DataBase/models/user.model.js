@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    address: { // Define as an object with subfields
+    address: { 
         street: {
             type: String,
             required: true

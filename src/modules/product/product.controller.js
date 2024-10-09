@@ -9,7 +9,7 @@ cloudinary.config({
 });
 
 export const addProduct = async (req, res) => {
-    const { name, price, category, quantity, bestSeller, offer, description,productAfterOffer } = req.body;
+    const { name, price, category, quantity, bestSeller, offer, description } = req.body;
     const imageFile = req.file; // Get the uploaded file
     try {
         const isProduct = await productModel.findOne({ name });
@@ -32,7 +32,6 @@ export const addProduct = async (req, res) => {
                         quantity,
                         bestSeller,
                         offer,
-                        productAfterOffer,
                         description,
                         image: result.secure_url, // Use the secure URL from Cloudinary
                     });
@@ -78,7 +77,7 @@ export const updateProduct = async (req, res) => {
         const product = await productModel.findById(_id);
         if (!product) {
             return res.status(404).json({ msg: 'Product not found' });
-        }F
+        }
 
         const updatedProduct = await productModel.findByIdAndUpdate(
             _id,
@@ -94,5 +93,34 @@ export const updateProduct = async (req, res) => {
     } catch (error) {
         console.error(error.message);
         res.status(500).send('Server error');
+    }
+};
+export const getProductCountByCategory = async (req, res) => {
+    const { category } = req.body; 
+    if (!category) {
+        return res.status(400).json({ success: false, message: 'Category is Miss.' });
+    }
+    try {
+        const productCount = await productModel.countDocuments({ category });
+
+        const products = await productModel.find({ category });
+
+        res.status(200).json({
+            success: true,
+            message: `Products in category: ${category}`,
+            productCount,
+            products: products.map(product => ({
+                name: product.name,
+                price: product.price,
+                quantity: product.quantity,
+                bestSeller: product.bestSeller,
+                offer: product.offer,
+                description: product.description,
+                image: product.image
+            })),
+        });
+    } catch (error) {
+        console.error('Error fetching products', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
     }
 };

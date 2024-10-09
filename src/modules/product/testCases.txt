@@ -1,0 +1,113 @@
+signUp user
+{
+    
+    "userName": "Emmy26",
+    "lastName":"Mohammed",
+    "phone": "1565154",
+    "password": "password",
+    "confirmPassword": "password",
+    "email": "ema@gmail.com", // حط ايميل فعلا علشان تجرب ال otp
+    "age": 26,
+    "gender": "female",
+    "address": {
+        "street": "123 Main St",
+        "city": "Springfield",
+        "state": "IL",
+        "country": "Egypt"
+    }
+}
+
+---------------------------------------------------------------------
+payment:
+
+authenticate
+http://localhost:3000/payment/authenticate post
+no json
+response
+{
+    "success": true,
+    "token": "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SmpiR0Z6Y3lJNklrMWxjbU5vWVc1MElpd2ljSEp2Wm1sc1pWOXdheUk2T1RrM09UZzJMQ0p3YUdGemFDSTZJbVV6WTJOall6azJNRFl3WVdZeU1UUXpZV1ZoWWpGaE5UWmlOVEZtTmpVMFltVTNOVEE1TnpKbE5UUmxaREF6TjJRMU1EZGxPR1poTlRWaFpHUTVORFVpTENKbGVIQWlPakUzTWpjNU9ETTROemg5LlRIYURNSDVNbGpsSjFrYThXYXA2Q1prYnZLVUJZdm5YOXpBX2gxdXhDb0FTQUxXZWR0WlJXRndDNS1mQWo3TENrekxsU1NmU2FBUkNxYlhyckVtOUtn"
+}
+
+
+
+create-payment
+http://localhost:3000/payment/create-payment post
+{
+    "userId": "66f851ed780f05324fe2e752",
+    "items": [
+        {
+            "productName": "Celecoxib",
+            "quantity": 3
+        }
+    ],
+    "paymentMethod": "Credit Card" // or other valid payment method
+}
+
+response
+{
+    "success": true,
+    "message": "Payment created successfully.",
+    "paymentToken": "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SjFjMlZ5WDJsa0lqb3hPRFEzTlRjNUxDSmhiVzkxYm5SZlkyVnVkSE1pT2pjeU1EQXNJbU4xY25KbGJtTjVJam9pUlVkUUlpd2lhVzUwWldkeVlYUnBiMjVmYVdRaU9qUTROREkxTmpVc0ltOXlaR1Z5WDJsa0lqb3lOVEUwTmpBd05qRXNJbUpwYkd4cGJtZGZaR0YwWVNJNmV5Sm1hWEp6ZEY5dVlXMWxJam9pUlcxaGJpSXNJbXhoYzNSZmJtRnRaU0k2SWxOdGFYUm9JaXdpYzNSeVpXVjBJam9pTkRVMklFVnNiU0JUZENJc0ltSjFhV3hrYVc1bklqb2lNU0lzSW1ac2IyOXlJam9pTVNJc0ltRndZWEowYldWdWRDSTZJakVpTENKamFYUjVJam9pUTJGcGNtOGlMQ0p6ZEdGMFpTSTZJa2xNSWl3aVkyOTFiblJ5ZVNJNklsVlRRU0lzSW1WdFlXbHNJam9pWlcxaGJqSXpNVEl4UUdkdFlXbHNMbU52YlNJc0luQm9iMjVsWDI1MWJXSmxjaUk2SWpBNU9EYzJOVFF6TWpFaUxDSndiM04wWVd4ZlkyOWtaU0k2SWs1Qklpd2laWGgwY21GZlpHVnpZM0pwY0hScGIyNGlPaUpPUVNKOUxDSnNiMk5yWDI5eVpHVnlYM2RvWlc1ZmNHRnBaQ0k2Wm1Gc2MyVXNJbVY0ZEhKaElqcDdmU3dpYzJsdVoyeGxYM0JoZVcxbGJuUmZZWFIwWlcxd2RDSTZabUZzYzJVc0ltVjRjQ0k2TVRjeU56azRNelkxTWl3aWNHMXJYMmx3SWpvaU5ERXVOREF1TWpFekxqRXhPQ0o5LkVXNFdGaHgxY2FpbU9FQnJZVTVWeGU1SHo3WG4yYmF4ckZjOXJtM3FzdWEzVF9qVDdrYlBWM3dnb0JqU2p5aUxpdEdNWl9BSFVWMVgtRVRtd3d0Q2lR",
+    "orderId": "66fee214aae0e30568556c5b",
+    "totalPrice": 72,
+    "paymentMethod": "Credit Card",
+    "items": [
+        {
+            "productName": "Celecoxib",
+            "quantity": 3,
+            "price": 24
+        }
+    ],
+    "user": {
+        "userId": "66f851ed780f05324fe2e752",
+        "email": "eman23121@gmail.com",
+        "firstName": "Eman"
+    }
+}
+
+
+
+take the token and complete payment
+http://localhost:3000/payment/complete-payment post
+json
+{
+    "paymentToken": "ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SjFjMlZ5WDJsa0lqb3hPRFEzTlRjNUxDSmhiVzkxYm5SZlkyVnVkSE1pT2pjeU1EQXNJbU4xY25KbGJtTjVJam9pUlVkUUlpd2lhVzUwWldkeVlYUnBiMjVmYVdRaU9qUTROREkxTmpVc0ltOXlaR1Z5WDJsa0lqb3lOVEUwTmpBd05qRXNJbUpwYkd4cGJtZGZaR0YwWVNJNmV5Sm1hWEp6ZEY5dVlXMWxJam9pUlcxaGJpSXNJbXhoYzNSZmJtRnRaU0k2SWxOdGFYUm9JaXdpYzNSeVpXVjBJam9pTkRVMklFVnNiU0JUZENJc0ltSjFhV3hrYVc1bklqb2lNU0lzSW1ac2IyOXlJam9pTVNJc0ltRndZWEowYldWdWRDSTZJakVpTENKamFYUjVJam9pUTJGcGNtOGlMQ0p6ZEdGMFpTSTZJa2xNSWl3aVkyOTFiblJ5ZVNJNklsVlRRU0lzSW1WdFlXbHNJam9pWlcxaGJqSXpNVEl4UUdkdFlXbHNMbU52YlNJc0luQm9iMjVsWDI1MWJXSmxjaUk2SWpBNU9EYzJOVFF6TWpFaUxDSndiM04wWVd4ZlkyOWtaU0k2SWs1Qklpd2laWGgwY21GZlpHVnpZM0pwY0hScGIyNGlPaUpPUVNKOUxDSnNiMk5yWDI5eVpHVnlYM2RvWlc1ZmNHRnBaQ0k2Wm1Gc2MyVXNJbVY0ZEhKaElqcDdmU3dpYzJsdVoyeGxYM0JoZVcxbGJuUmZZWFIwWlcxd2RDSTZabUZzYzJVc0ltVjRjQ0k2TVRjeU56azRNelkxTWl3aWNHMXJYMmx3SWpvaU5ERXVOREF1TWpFekxqRXhPQ0o5LkVXNFdGaHgxY2FpbU9FQnJZVTVWeGU1SHo3WG4yYmF4ckZjOXJtM3FzdWEzVF9qVDdrYlBWM3dnb0JqU2p5aUxpdEdNWl9BSFVWMVgtRVRtd3d0Q2lR"
+}
+
+response
+{
+    "success": true,
+    "message": "iframe Created successfully",
+    "iframeUrl": "https://accept.paymobsolutions.com/api/acceptance/iframes/871392?payment_token=ZXlKaGJHY2lPaUpJVXpVeE1pSXNJblI1Y0NJNklrcFhWQ0o5LmV5SjFjMlZ5WDJsa0lqb3hPRFEzTlRjNUxDSmhiVzkxYm5SZlkyVnVkSE1pT2pjeU1EQXNJbU4xY25KbGJtTjVJam9pUlVkUUlpd2lhVzUwWldkeVlYUnBiMjVmYVdRaU9qUTROREkxTmpVc0ltOXlaR1Z5WDJsa0lqb3lOVEUwTmpBd05qRXNJbUpwYkd4cGJtZGZaR0YwWVNJNmV5Sm1hWEp6ZEY5dVlXMWxJam9pUlcxaGJpSXNJbXhoYzNSZmJtRnRaU0k2SWxOdGFYUm9JaXdpYzNSeVpXVjBJam9pTkRVMklFVnNiU0JUZENJc0ltSjFhV3hrYVc1bklqb2lNU0lzSW1ac2IyOXlJam9pTVNJc0ltRndZWEowYldWdWRDSTZJakVpTENKamFYUjVJam9pUTJGcGNtOGlMQ0p6ZEdGMFpTSTZJa2xNSWl3aVkyOTFiblJ5ZVNJNklsVlRRU0lzSW1WdFlXbHNJam9pWlcxaGJqSXpNVEl4UUdkdFlXbHNMbU52YlNJc0luQm9iMjVsWDI1MWJXSmxjaUk2SWpBNU9EYzJOVFF6TWpFaUxDSndiM04wWVd4ZlkyOWtaU0k2SWs1Qklpd2laWGgwY21GZlpHVnpZM0pwY0hScGIyNGlPaUpPUVNKOUxDSnNiMk5yWDI5eVpHVnlYM2RvWlc1ZmNHRnBaQ0k2Wm1Gc2MyVXNJbVY0ZEhKaElqcDdmU3dpYzJsdVoyeGxYM0JoZVcxbGJuUmZZWFIwWlcxd2RDSTZabUZzYzJVc0ltVjRjQ0k2TVRjeU56azRNelkxTWl3aWNHMXJYMmx3SWpvaU5ERXVOREF1TWpFekxqRXhPQ0o5LkVXNFdGaHgxY2FpbU9FQnJZVTVWeGU1SHo3WG4yYmF4ckZjOXJtM3FzdWEzVF9qVDdrYlBWM3dnb0JqU2p5aUxpdEdNWl9BSFVWMVgtRVRtd3d0Q2lR"
+}
+
+--------------------------------------------------
+
+orders:
+
+all orders get
+http://localhost:3000/orders/getOrders?userId=66f851ed780f05324fe2e752
+
+
+for specific user get
+http://localhost:3000/orders/getOrders
+
+
+specific order get
+http://localhost:3000/orders/66f8550f780f05324fe2e75f
+
+
+update put
+http://localhost:3000/orders/66f8550f780f05324fe2e75f/updateStatus
+json
+{
+	"status":"completed"
+}
+response 
+{
+    "success": false,
+    "message": "Canceled due to Insufficient product quantity."
+}
+
+

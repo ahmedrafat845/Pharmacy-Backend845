@@ -179,7 +179,7 @@ export const processCashPayment = catchError(async (req, res) => {
         items: cart.items,
         totalPrice: cart.totalPrice,
         paymentMethod: 'cash',
-        status: 'pending' // or whatever initial status you want
+        status: 'pending' 
     });
 
     // Save the order
