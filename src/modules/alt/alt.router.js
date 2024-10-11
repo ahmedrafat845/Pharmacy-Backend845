@@ -5,10 +5,15 @@ import {
     getAllAlternatives,
     updateAlternative
 } from './alt.controller.js'; 
+import multer from 'multer';
+
+const upload = multer(); // Use memory storage for direct upload
 export const altRouter = express.Router();
 
-altRouter.post('/addAlternative', addAlternative); 
+// Use the upload middleware for your routes
+altRouter.post('/addAlternative', upload.single('image'), addAlternative); 
 altRouter.delete('/deleteAlternative', deleteAlternative); 
 altRouter.get('/getAllAlternatives', getAllAlternatives); 
-altRouter.put('/updateAlternative', updateAlternative); 
-export default altRouter; 
+altRouter.put('/updateAlternative', upload.single('image'), updateAlternative); // Adjust this for image uploads as well
+
+export default altRouter;
