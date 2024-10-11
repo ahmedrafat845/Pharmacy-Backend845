@@ -9,6 +9,7 @@ import { wishlistRouter } from './src/modules/wishlist/wishlist.router.js';
 import paymentRouter from './src/modules/payment/payment.router.js';
 import { orderRouter } from './src/modules/order/order.router.js';
 import cors from 'cors'
+import altRouter from './src/modules/alt/alt.router.js';
 dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
@@ -27,6 +28,7 @@ app.use('/carts', cartRouter);
 app.use('/wishlist', wishlistRouter);
 app.use('/payment', paymentRouter);
 app.use('/orders',orderRouter)
+app.use('/alternatives', altRouter);  
 
 app.get('/', (req, res) => {
     res.send('Welcome to the API');
