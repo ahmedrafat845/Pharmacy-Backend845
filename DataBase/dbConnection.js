@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-let isConnected = false; 
+let isConnected = false; // Track connection status
 
 export const DbConnection = async () => {
     if (isConnected) {
@@ -10,12 +10,10 @@ export const DbConnection = async () => {
 
     const mongoUri = process.env.MONGODB_URI || 'mongodb+srv://ahmedrafat12:ahmedrafat12345@cluster0.mnfstos.mongodb.net/Pharmacy';
     console.log('Connecting to MongoDB with URI:', mongoUri);
-    
+
     try {
         await mongoose.connect(mongoUri, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-            serverSelectionTimeoutMS: 50000,
+            serverSelectionTimeoutMS: 50000, // Timeout after 50s
         });
         isConnected = true;
         console.log('Database Connected Successfully');
