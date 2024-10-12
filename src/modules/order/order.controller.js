@@ -44,51 +44,50 @@ export const getOrderDetails = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server error', error: error.message });
     }
 };
+
 export const updateOrderStatus = async (req, res) => {
-    const { orderId } = req.params; 
-    const { status } = req.body; 
+    const { orderId } = req.params;
+    const { status } = req.body;
 
     try {
         if (!['pending', 'completed', 'canceled'].includes(status)) {
             return res.status(400).json({ success: false, message: 'Invalid status' });
         }
+
         const order = await orderModel.findById(orderId);
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
+
         if (status === 'completed') {
             let isAvailable = true;
-
             for (const item of order.items) {
                 const product = await productModel.findOne({ name: item.productName });
                 if (!product || product.quantity < item.quantity) {
-                    isAvailable = false; // if the product doesn't exist or not enough quantity
+                    isAvailable = false;
                     break;
                 }
             }
 
             if (!isAvailable) {
-                // If not available, update order status to "canceled"
                 await orderModel.findByIdAndUpdate(orderId, { status: 'canceled' }, { new: true });
-                return res.status(400).json({ success: false, message: 'Canceled due to Insufficient product quantity.' });
+                return res.status(400).json({ success: false, message: 'Order canceled due to insufficient product quantity.' });
+            }
+
+            for (const item of order.items) {
+                const product = await productModel.findOne({ name: item.productName });
+                if (product) {
+                    product.quantity -= item.quantity;
+                    await product.save();
+                }
             }
         }
 
         const updatedOrder = await orderModel.findByIdAndUpdate(
             orderId,
             { status },
-            { new: true } 
+            { new: true }
         );
-
-        if (status === 'completed') {
-            for (const item of updatedOrder.items) {
-                const product = await productModel.findOne({ name: item.productName });
-                if (product) {
-                    product.quantity -= item.quantity; 
-                    await product.save(); 
-                }
-            }
-        }
 
         res.status(200).json({
             success: true,

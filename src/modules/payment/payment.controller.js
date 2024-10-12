@@ -21,19 +21,21 @@ export const authenticatePaymob = async (req, res) => {
     }
 };
 
+
 export const createPayment = async (req, res) => {
     const { userId, items, paymentMethod } = req.body;
 
+    // Validate required fields
     if (!userId || !items || !paymentMethod) {
         return res.status(400).json({ error: 'Missing required fields' });
     }
 
+    // Validate API keys
     if (!process.env.PAYMOB_API_KEY || !process.env.PAYMOB_INTEGRATION_ID) {
         return res.status(500).json({ error: 'Missing configurations' });
     }
 
     try {
-
         const user = await userModel.findById(userId);
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -42,47 +44,43 @@ export const createPayment = async (req, res) => {
         let totalPrice = 0;
         const availableItems = [];
 
+        // Loop through items to check availability and calculate total price
         for (const item of items) {
-            const product = await productModel.findOne({ name: item.productName });
+            const product = await productModel.findById(item.productId); // Use productId from the request
             if (!product || product.quantity < item.quantity) {
-                return res.status(400).json({ error: `Product "${item.productName}" is unavailable or insufficient quantity.` });
+                return res.status(400).json({ error: `Product with ID "${item.productId}" is unavailable or insufficient quantity.` });
             }
 
             totalPrice += product.price * item.quantity;
 
-
             availableItems.push({
-                productName: product.name,
+                productId: product._id,
                 quantity: item.quantity,
                 price: product.price,
             });
         }
-        // قولت بلاش ابعتها يحسب هو ال total + check for amount + ava 
 
-        // Authenticate with Paymob
+        // Proceed with Paymob authentication and order creation
         const authResponse = await axios.post('https://accept.paymobsolutions.com/api/auth/tokens', {
             api_key: process.env.PAYMOB_API_KEY,
         });
         const { token } = authResponse.data;
 
-        // Prepare order payload 
         const orderPayload = {
             auth_token: token,
             delivery_needed: 'false',
-            amount_cents: totalPrice * 100, 
+            amount_cents: totalPrice * 100,
             currency: 'EGP',
             items: availableItems.map(item => ({
-                name: item.productName,
+                name: item.productId.toString(), // Use productId as name (or fetch the name if needed)
                 quantity: item.quantity,
                 amount_cents: item.price * 100,
             })),
         };
 
-        // Create an order in Paymob
         const orderResponse = await axios.post('https://accept.paymobsolutions.com/api/ecommerce/orders', orderPayload);
         const orderId = orderResponse.data.id;
 
-        // Create a payment key
         const paymentKeyResponse = await axios.post('https://accept.paymobsolutions.com/api/acceptance/payment_keys', {
             auth_token: token,
             amount_cents: totalPrice * 100,
@@ -92,11 +90,11 @@ export const createPayment = async (req, res) => {
                 email: user.email,
                 first_name: user.userName,
                 last_name: user.lastName,
-                phone_number: user.phone ,
+                phone_number: user.phone,
                 street: user.address.street,
-                building: user.address.building ||1 ,
+                building: user.address.building || 1,
                 floor: user.address.floor || 1,
-                apartment: user.address.apartment || 1 ,
+                apartment: user.address.apartment || 1,
                 city: user.address.city,
                 country: user.address.country,
                 state: user.address.state,
@@ -104,6 +102,7 @@ export const createPayment = async (req, res) => {
             currency: 'EGP',
             integration_id: process.env.PAYMOB_INTEGRATION_ID,
         });
+
         const { token: paymentToken } = paymentKeyResponse.data;
 
         // Save the order to the database
@@ -114,11 +113,12 @@ export const createPayment = async (req, res) => {
             paymentMethod,
             status: 'pending',
         });
+
         await newOrder.save();
 
         res.status(200).json({
             success: true,
-            message: 'Payment created successfully.',
+            message: 'Payment initiated successfully.',
             paymentToken,
             orderId: newOrder._id,
             totalPrice,
@@ -130,24 +130,77 @@ export const createPayment = async (req, res) => {
                 firstName: user.userName,
             },
         });
+
     } catch (error) {
         console.error('Error in creating payment:', error.response ? error.response.data : error);
-        res.status(500).json({ error: 'Payment creation failed', details: error.response ? error.response.data : error.message });
+        res.status(500).json({ error: 'Payment initiation failed', details: error.message });
     }
 };
 
-// Get the iframe URL
-export const completePayment = (req, res) => {
-    const { paymentToken } = req.body;
-    if (!paymentToken) {
-        return res.status(400).json({ success: false, error: 'Missing payment token' });
-    }
 
-    const iframeUrl = `https://accept.paymobsolutions.com/api/acceptance/iframes/${process.env.PAYMOB_IFRAME_ID}?payment_token=${paymentToken}`;
-    res.status(200).json({
-        success: true,
-        message: 'iframe Created successfully',
-        iframeUrl,
-    });
+
+export const completePayment = async (req, res) => {
+    const { orderId } = req.params; // Get the orderId from the URL
+    const { paymentStatus, paymentDetails } = req.body; // Get payment details from the request body
+
+    try {
+        // Find the order by ID
+        const order = await orderModel.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Check if payment was successful
+        if (paymentStatus !== 'success') {
+            return res.status(400).json({ success: false, message: 'Payment failed or not completed' });
+        }
+
+        // Check if there is enough product quantity available
+        let isAvailable = true;
+        for (const item of order.items) {
+            // Find the product by its ID
+            const product = await productModel.findById(item.productId); // Correctly use productId here
+            if (!product || product.quantity < item.quantity) {
+                isAvailable = false;
+                console.log(`Checking product: ${product ? product.name : 'undefined'}, required: ${item.quantity}, available: ${product ? product.quantity : 'not found'}`);
+                break;
+            }
+        }
+
+        // If products are not available, cancel the order
+        if (!isAvailable) {
+            await orderModel.findByIdAndUpdate(orderId, { status: 'canceled' });
+            return res.status(400).json({ success: false, message: 'Order canceled due to insufficient product quantity.' });
+        }
+
+        // Deduct the product quantities
+        for (const item of order.items) {
+            const product = await productModel.findById(item.productId); // Use productId to find the product
+            if (product) {
+                product.quantity -= item.quantity; // Deduct the quantity
+                await product.save(); // Save the updated product
+            }
+        }
+
+        // Update the order status to completed
+        const updatedOrder = await orderModel.findByIdAndUpdate(
+            orderId,
+            { status: 'completed', paymentDetails }, // Update order with new status and payment details
+            { new: true } // Return the updated order
+        );
+
+        // Send response back to the client
+        res.status(200).json({
+            success: true,
+            message: 'Payment completed and order status updated to completed.',
+            order: updatedOrder,
+            paymentDetails, // Include payment details in response
+        });
+
+    } catch (error) {
+        console.error('Error in completing payment:', error);
+        res.status(500).json({ success: false, message: 'Server error', error: error.message });
+    }
 };
 
