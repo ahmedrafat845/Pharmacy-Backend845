@@ -72,7 +72,7 @@ export const resetPassword = async (req, res) => {
 };
 
 export const signUp = async (req, res) => {
-    const { userName, lastName, email, password, confirmPassword, age, gender, address, phone } = req.body;
+    const { userName, lastName, email, password, confirmPassword, age, gender, address, phone ,role} = req.body;
 
     // Check if passwords match
     if (password !== confirmPassword) {
@@ -97,7 +97,8 @@ export const signUp = async (req, res) => {
                 age,
                 gender,
                 address, // Directly add address without manipulation
-                phone
+                phone,
+                role
             });
             res.status(201).json({ msg: 'User created successfully' });
         }
@@ -179,11 +180,11 @@ function generateToken(user) {
             gender: user.gender,
             phone: user.phone,
             address: user.address,
-            lastName: user.lastName, // Include lastName in the token
-            id: user._id
+            lastName: user.lastName, 
+            userId: user._id
         },
         'ahmedrafat123',
-        { expiresIn: '3h' }
+        { expiresIn: '9h' }
     );
 }
 
