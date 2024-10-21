@@ -5,5 +5,5 @@ const router = express.Router();
 
 router.post('/authenticate', authenticatePaymob);
 router.post('/create-payment', createPayment);
-router.post('/complete-payment/:orderId', completePayment);
+router.post('/complete-payment', completePayment);
 export default router;
