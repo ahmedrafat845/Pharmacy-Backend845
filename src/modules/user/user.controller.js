@@ -1,4 +1,4 @@
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from "jsonwebtoken";
 import { userModel } from './../../../DataBase/models/user.model.js';
 import nodemailer from 'nodemailer';
