@@ -8,8 +8,7 @@ const productSchema=new mongoose.Schema({
     bestSeller: { type: Boolean, default: false }, // Optional property
     offer: { type: Boolean, default: false }, // Optional property
     description: String,
-    image: { type: String, required: false },
-    productAfterOffer:Number // New property for image
+    image: { type: String, required: false }, 
 } , {
     timestamps:true
 })

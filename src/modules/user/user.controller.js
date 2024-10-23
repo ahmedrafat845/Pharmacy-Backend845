@@ -1,9 +1,7 @@
-
+import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 import { userModel } from './../../../DataBase/models/user.model.js';
 import nodemailer from 'nodemailer';
-import bcrypt from 'bcryptjs';
-
 
 export const forgetPassword = async (req, res) => {
     const { email } = req.body;
@@ -246,7 +244,6 @@ export const getUsers = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch users' });
     }
 };
-
 
 // export const updatePassword = async (req, res) => {
 //   const { email, newPassword } = req.body;

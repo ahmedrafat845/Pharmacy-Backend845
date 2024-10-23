@@ -105,7 +105,6 @@ export const getProductCountByCategory = async (req, res) => {
 
         const products = await productModel.find({ category });
 
-
         res.status(200).json({
             success: true,
             message: `Products in category: ${category}`,
