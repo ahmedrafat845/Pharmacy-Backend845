@@ -70,18 +70,40 @@ export const getAllProducts = async (req, res) => {
         res.status(500).json({ message: "Server error", error: error.message });
     }
 };
-
 export const updateProduct = async (req, res) => {
-    const { _id, name, quantity, price, category, description, bestSeller, offer, image } = req.body;
+    const { _id, name, quantity, price, category, description, bestSeller, offer } = req.body;
+    const imageFile = req.file; 
     try {
         const product = await productModel.findById(_id);
         if (!product) {
             return res.status(404).json({ msg: 'Product not found' });
         }
+        let updatedImageUrl = product.image;
 
+        if (imageFile) {
+            const uploadResult = await new Promise((resolve, reject) => {
+                cloudinary.v2.uploader.upload_stream(
+                    { resource_type: 'image' },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                ).end(imageFile.buffer);
+            });
+            updatedImageUrl = uploadResult.secure_url; 
+        }
         const updatedProduct = await productModel.findByIdAndUpdate(
             _id,
-            { name, quantity, price, category, description, bestSeller, offer, image },
+            {
+                name,
+                quantity,
+                price,
+                category,
+                description,
+                bestSeller,
+                offer,
+                image: updatedImageUrl, // Use the updated image URL if a new image was uploaded
+            },
             { new: true }
         );
 
@@ -92,7 +114,7 @@ export const updateProduct = async (req, res) => {
 
     } catch (error) {
         console.error(error.message);
-        res.status(500).send('Server error');
+        res.status(500).json({ msg: 'Server error', error: error.message });
     }
 };
 export const getProductCountByCategory = async (req, res) => {
